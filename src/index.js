@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
+// import express from "express";
 // import mongoose from "mongoose";
 // import { DB_NAME } from "./constants";
 import connetDB from "./db/index.js";
 import "dotenv/config";
+import { app } from "./app.js";
 
 // FIRST APPROACH
 // import express from "express";

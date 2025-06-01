@@ -4,7 +4,7 @@ import bycript from "bcrypt";
 
 const userSchema = mongoose.Schema(
   {
-    username: {
+    userName: {
       type: String,
       required: true,
       unique: true,
@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    fullname: {
+    fullName: {
       type: String,
       unique: true,
       trim: true,
@@ -47,7 +47,7 @@ const userSchema = mongoose.Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
-  this.password = bycript.hash(this.password, 10);
+  this.password = await bycript.hash(this.password, 10);
   next();
 });
 
