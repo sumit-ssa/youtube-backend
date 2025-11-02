@@ -1,20 +1,10 @@
-import { User } from "../models/user.modal.js";
+import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const registerUser = asyncHandler(async (req, res) => {
-  // Get data from frontend
-  // validate user data
-  // Check if user already exist : username, email
-  // check for images & avatar
-  // upload file in cloudinary
-  // create user object - create entry in db
-  // remove pass and refresh token from response
-  // check for success
-  // return response
-
   const { userName, email, fullName, password } = req.body;
 
   if (
@@ -23,7 +13,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existedUser = User.findOne({ $or: [{ email }, { userName }] });
+  const existedUser = await User?.findOne({ $or: [{ email }, { userName }] });
 
   if (existedUser) {
     throw new ApiError(409, "User Already Exist");
@@ -43,16 +33,16 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar is Required");
   }
 
-  const user = await User.create({
+  const user = await User?.create({
     fullName,
     avatar: avatar?.url,
     coverImage: coverImage?.url || "",
     email,
     password,
-    userName: userName.toLowerCase(),
+    userName: userName?.toLowerCase(),
   });
 
-  const createdUser = await User.findById(user._id).select(
+  const createdUser = await User?.findById(user._id).select(
     "-password -refreshToken"
   );
 
@@ -65,4 +55,25 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "User Registered Successfully"));
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, userName, password } = res.body;
+
+  if (!userName || !email) {
+    throw new ApiError(400, "Username or password is required");
+  }
+
+  const user = await User.findOne({
+    $or: [{ userName }, { email }],
+  });
+
+  if (!user) {
+    throw new ApiError(404, "user does not exist");
+  }
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
+  if (!isPasswordValid) {
+    throw new ApiError(401, "Paaword Incorrect");
+  }
+});
+
+export { registerUser, loginUser };
