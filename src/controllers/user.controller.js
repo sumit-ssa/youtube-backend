@@ -25,6 +25,7 @@ const generateAccessAndGenerateToken = async (userId) => {
   }
 };
 
+// REGISTER USER
 const registerUser = asyncHandler(async (req, res) => {
   const { userName, email, fullName, password } = req.body;
 
@@ -41,7 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req?.files?.coverImage[0]?.path;
+  const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar Image is Required");
@@ -76,10 +77,11 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "User Registered Successfully"));
 });
 
+// LOGIN USER
 const loginUser = asyncHandler(async (req, res) => {
   const { email, userName, password } = res.body;
 
-  if (!userName || !email) {
+  if (!userName && !email) {
     throw new ApiError(400, "Username or password is required");
   }
 
@@ -122,6 +124,7 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
+// LOGOUT USER
 const logoutUser = asyncHandler(async (req, res) => {
   User.findByIdAndUpdate(
     req.user?._id,
